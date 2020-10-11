@@ -1,0 +1,126 @@
+<div class="dialog-content-wrapper">
+
+  <mat-toolbar class="mb-2" matDialogTitle color="primary" id="toolbarHeader">
+    <mat-toolbar-row fxLayoutAlign="space-between center">
+      <span *ngIf="!isEditing" class="mat-title mb-0">{{'Add &[name]&'}}</span>
+      <span *ngIf="isEditing" class="mat-title mb-0">{{'Edit &[name]&'}}</span>
+      <button mat-icon-button (click)="dialogRef.close()" aria-label="Close dialog">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <div mat-dialog-content class="my-dialog-content">
+    <form [formGroup]="form">
+      <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="gappx">
+
+        <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutAlign.lt-sm="center stretch" class="mb-2">
+          <div fxLayout="row" class="mt-2" fxLayoutAlign="start start" fxLayoutGap="gappx">
+            <span class="mat-body-2" style="text-transform: uppercase;">{{'The image should be a png 1920x700'}}
+              <mat-icon matTooltip="{{'The image should be a png 1920x700 or with the same aspect ratio'}}" class="iconHelp">help
+              </mat-icon></span>
+          </div>
+
+          <ngp-image-picker [_imageSrc]="(this.isEditing)?imageUrl + selected&[Name]&.image:null" [_config]="imagePickerConf"
+            ($imageChanged)="onImageChange($event)"></ngp-image-picker>
+        </div>
+
+        <div fxLayout="row" class="mt-2" fxLayoutAlign="start start" fxLayoutGap="gappx">
+          <span class="mat-body-2" style="text-transform: uppercase;">{{'Seleccione su idioma de creación'}}
+            <mat-icon matTooltip="{{'El predeterminado es español'}}" class="iconHelp">help</mat-icon></span>
+        </div>
+
+        <div fxLayout="row" class="mt-2" fxLayoutAlign="start start" fxLayoutGap="gappx">
+          <mat-form-field fxFlex="100" appearance="outline">
+            <mat-label> {{'Language'}}</mat-label>
+            <mat-select [compareWith]="compareFn" required [formControl]="languageForm" placeholder="{{'Language'}}">
+              <mat-option *ngFor="let language of this.languages;let i=index" [value]="language">
+                <div fxLayout="row" fxLayoutAlign="start center">
+                  <img [src]="language.image" style="height: 30px; width: 30px;">
+                  <span class="ml-2 mat-body-2">
+                    {{language.name}}
+                  </span>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-divider class="mb-2"></mat-divider>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{'Título'}}</mat-label>
+          <input required type="text" [formControl]="form.controls['title']" matInput placeholder="{{'Título'}}">
+          <mat-icon class="greyIcon" matSuffix>unarchive</mat-icon>
+          <mat-error *ngIf="form.controls['title'].hasError('required')">
+            {{'Título'}} <strong>{{'is required'}}</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls['title'].hasError('minlength')">
+            {{'El nombre del artículo debe tener al menos 5 caracteres'}}
+          </mat-error>
+          <mat-error *ngIf="form.controls['title'].hasError('pattern')">
+            {{'El nombre debe contener carateres alfanuméricos'}}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{'Subtítulo'}}</mat-label>
+          <textarea #text rows="2" matInput [formControl]="form.controls['subTitle']" placeholder="{{'Subtítulo'}}"></textarea>
+          <mat-icon class="greyIcon" matSuffix>edit</mat-icon>
+          <mat-hint align="end">{{text.value.length}} / 200</mat-hint>
+          <mat-error *ngIf="form.controls['subTitle'].hasError('maxlength')">
+            {{'El texto secundario solo debe contener 100 caractéres'}}
+          </mat-error>
+        </mat-form-field>
+
+
+        <div fxLayout="row" class="mt-2" fxLayoutAlign="start start" fxLayoutGap="gappx">
+          <span class="mat-body-2" style="text-transform: uppercase;">{{'INTRODUZCA UN ENLACE PARA REFERIR'}}
+            <mat-icon
+              matTooltip="{{'Es un enlace al que le gustaría hacer referencia en caso de un anuncio u otra página para visitar, es opcional'}}"
+              class="iconHelp">help</mat-icon></span>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{'Link'}}
+          </mat-label>
+          <input type="text" [formControl]="form.controls['link']" matInput placeholder="{{'Link'}}">
+          <mat-icon class="greyIcon" matSuffix>link</mat-icon>
+          <mat-error *ngIf="form.controls['link'].hasError('pattern')">
+            {{'Url'}} <strong>{{'is not valid'}}</strong>
+          </mat-error>
+        </mat-form-field>
+
+        <p class="mat-body-2 uppercase"> Estado</p>
+        <mat-form-field appearance="outline">
+          <mat-select required [formControl]="form.get('status')" placeholder="{{'Estado'}}">
+            <mat-option *ngFor="let status of [{id:'pending',name:'pendiente'},
+            {id:'enabled',name:'habilitado'},
+            {id:'disabled',name:'deshabilitado'}];let i=index" [value]="status.id">
+              <div fxLayout="row" fxLayoutAlign="start center">
+                <span class="mat-body-2 uppercase">
+                  {{status.name}}
+                </span>
+              </div>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+
+
+
+      </div>
+
+    </form>
+
+
+
+
+  </div>
+
+  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end start">
+    <button mat-flat-button (click)="onSave()" [disabled]="this.form.invalid|| !image&[Name]&" color="primary">{{'Guardar'}}</button>
+
+  </div>
+
+</div>

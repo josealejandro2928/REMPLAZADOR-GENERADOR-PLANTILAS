@@ -1,0 +1,70 @@
+@import "../../../../../assets/scss/theme/variables";
+@import "src/assets/scss/mixins/breakpoints";
+
+:host {
+  padding: 16px;
+}
+
+@include media-breakpoint("lt-sm") {
+  padding: 16px 0px !important;
+}
+
+mat-toolbar-row {
+  background-color: #fff !important;
+}
+
+mat-toolbar {
+  background-color: #fff !important;
+}
+
+table {
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+#actionsHover {
+  color: #616161 !important;
+
+}
+
+.rowData {
+  border-top: 1px solid rgba(0, 0, 0, 0.12) !important;
+
+  &:hover {
+    background-color: #eee;
+  }
+}
+
+.responsive_table {
+  max-height: 70vh;
+  overflow: auto;
+  padding: 1px;
+  width: 100% !important;
+
+  @include media-breakpoint("lt-md") {
+    table {
+      min-width: 800px !important;
+
+      th {
+        min-width: 80px !important;
+      }
+
+      #select {
+        min-width: 60px !important;
+      }
+
+      #action {
+        min-width: 60px !important;
+      }
+    }
+
+    .mat-paginator {
+      display: block;
+      min-width: 800px !important;
+    }
+
+  }
+}
