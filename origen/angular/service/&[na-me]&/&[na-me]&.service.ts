@@ -74,7 +74,7 @@ export class &[Name]&Service {
   }
 
   get&[Name]&(data: any): Observable<any> {
-    if (data.constructor === Object) {
+    if (data.constructor == Object) {
       return this.httpClient.get<any>(this.urlId.replace(':id', data.id), this.httpOptions);
     } else {
       return this.httpClient.get<any>(this.urlId.replace(':id', data + ''), this.httpOptions);

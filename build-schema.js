@@ -77,7 +77,7 @@ function getProperties(attribute, properties) {
       console.log("+properties[0].constructor", +properties[0].constructor);
       if (isNaN(properties[0]) == false) {
         result.type = "NUMBER";
-        if (properties[0].indexOf(".") != -1) {
+        if (properties[0].indexOf(".") != -1 || properties[0].length > 6) {
           result.isDecimal = true;
         }
         break;

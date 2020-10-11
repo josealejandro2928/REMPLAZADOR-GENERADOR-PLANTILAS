@@ -13,6 +13,7 @@ luego, requerimeintos EJ:'+' => es requerido, @ => es correo , ** =>password
     CompanyId:Company + s=name show
     Tasks: [Task] s=title show
     status: |a|b|c|
+    card: '' **
 } -->
 
 2- El nombre del archivo .json debe llamarse struct.json

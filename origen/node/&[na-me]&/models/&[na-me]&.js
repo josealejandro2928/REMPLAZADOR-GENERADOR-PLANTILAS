@@ -59,7 +59,11 @@ exports.loadModel = function loadModel() {
                         result+=`"type":global.app.orm.Sequelize.DATEONLY, \n \t`;
                     break;
                     case "NUMBER":
-                        result+=`"type":global.app.orm.Sequelize.DOUBLE, \n \t`;
+                        if(schema[key].isDecimal){
+                            result+=`"type":global.app.orm.Sequelize.DOUBLE, \n \t`;
+                        }else{
+                            result+=`"type":global.app.orm.Sequelize.INTEGER, \n \t`;
+                        }
                     break;
                 
                     case "ENUM":
@@ -114,16 +118,26 @@ exports.loadModel = function loadModel() {
             }
         });
     &[Name]&.associate = function () {
-        // var models = global.app.orm.sequelize.models;
-        // models.&[Name]&.belongsTo(models.Person, {
-        //     as: 'Creator'
-        // });
-        // models.&[Name]&.hasMany(models.File, {
-        //     foreignKey: 'fkId',
-        //     scope: {
-        //         fkModel: '&[Name]&'
-        //     }
-        // });
+        const models = global.app.orm.sequelize.models;
+        //startRemplace
+         function run(schema){  
+            let result = '';
+            for(let key in schema){
+                if(schema[key].type == 'REFERENCE'){
+                    if(!schema[key].isMultiple){
+                        result+= `models.&[Name]&.belongsTo(models.${schema[key].targetTable}, {
+                            as: '${schema[key].targetTable}'
+                            });`
+                    }else{
+                        result+= `models.&[Name]&.hasMany(models.${schema[key].targetTable}, {
+                            as: '${key}'
+                            });`
+                    }
+                }
+            }
+            return result;
+        }
+        //endRemplace
     }
 
 };
