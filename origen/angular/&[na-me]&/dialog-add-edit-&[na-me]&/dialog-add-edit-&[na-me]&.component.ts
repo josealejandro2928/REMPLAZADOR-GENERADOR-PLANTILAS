@@ -1,5 +1,5 @@
-import { UtilsService } from './../../../../core/services/utils/utils.service';
-import { environment } from './../../../../../environments/environment';
+import { UtilsService } from 'src/app/core/services/utils/utils.service';
+import { environment } from 'src/environments/environment';
 import {
   Component,
   Inject,
@@ -12,11 +12,21 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { &[Name]&Service } from '../../../services/&[na-me]&/&[na-me]&.service';
+import { &[Name]&Service } from 'src/app/backend/services/&[na-me]&/&[na-me]&.service';
 import { ImagePickerConf } from 'ngp-image-picker';
 import { LoggedInUserService } from 'src/app/core/services/loggedInUser/logged-in-user.service';
 import { ShowToastrService } from 'src/app/core/services/show-toastr/show-toastr.service';
-import { schema } from '../../../../build-schema';
+ //startRemplace
+ function run(schema){
+  let result = '';
+  for(let key in schema){
+    if(schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+      result+=`import { ${schema[key].targetTable}Service } from 'src/app/backend/services/${schema[key].targetTable.toLowerCase()}/${schema[key].targetTable.toLowerCase()}.service';\n`
+    }
+  }
+  return result
+}
+//endRemplace
 
 @Component({
   selector: 'app-dialog-add-edit-&[na-me]&',
@@ -76,6 +86,17 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
     public spinner: NgxSpinnerService,
     public utilsService: UtilsService,
     private &[name]&Service: &[Name]&Service,
+     //startRemplace
+ function run(schema){
+  let result = '';
+  for(let key in schema){
+    if(schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+      result+=`private ${schema[key].targetTable.toLowerCase()}Service:${schema[key].targetTable}Service,\n`
+    }
+  }
+  return result
+}
+//endRemplace
     private showToastr: ShowToastrService,
   ) {
     this.dialogRef.disableClose = true;
@@ -134,9 +155,9 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
               || schema[key].type == "ENUM" ||  schema[key].type == "LONG-STRING"){
                 result+=`${key}: [this.selected&[Name]&?.${key},[`
               }else if(schema[key].type == "REFERENCE" && !schema[key].isMultiple ){
-                result+=`${key}: [this.selected&[Name]&?.${key.split('Id')[0]},[`
+                result+=`${key}: [this.selected&[Name]&?.${key.split('Id')[0]}?.id,[`
               }else if(schema[key].type == "REFERENCE" && schema[key].isMultiple ){
-                result+=`${key}: [ this.selected&[Name]&?.${key}.map(i=>i.id),[`
+                result+=`${key}: [ this.selected&[Name]&?.${key}.map(i=>i?.id),[`
               }else if(schema[key].type == "DATE" || schema[key].type == "DATEONLY"  ){
                 result+=`${key}: [this.selected&[Name]&?.${key},[`
               }
@@ -166,6 +187,21 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
 
   fetchData(){
     /*Ponga aqui las peticiones para loas datos de Tipo REFERENCE*/ 
+      //startRemplace
+ function run(schema){
+  let result = '';
+  for(let key in schema){
+    if(schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+      result+=`this.${schema[key].targetTable.toLowerCase()}Service.getAll${schema[key].targetTable}s().subscribe((data)=>{
+        this.all${schema[key].targetTable} = data.data;
+      },e=>{
+        //catch error
+      })`
+    }
+  }
+  return result
+}
+//endRemplace
   }
 
   ngOnDestroy(): void {
