@@ -10,7 +10,7 @@ async function update&[Name]&(req, res) {
   try{
     let &[name]& = await global.db.sequelize.transaction(async (t) => {
                       await req.&[name]&.update(req.body,{transaction:t});
-                      let data = await models.&[Name]&.findByPk(data.id, {include: [{all: true}],transaction:t});
+                      let data = await models.&[Name]&.findByPk(req.&[name]&.id, {include: [{all: true}],transaction:t});
                       return data
                    })
     return res.status(200).json({data:&[name]&.toJSON()}); // OK.

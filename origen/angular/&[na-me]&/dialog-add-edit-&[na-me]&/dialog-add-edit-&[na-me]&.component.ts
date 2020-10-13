@@ -3,12 +3,9 @@ import { environment } from './../../../../../environments/environment';
 import {
   Component,
   Inject,
-  HostListener,
   ViewEncapsulation,
   OnInit,
   OnDestroy,
-  ElementRef,
-  ViewChild,
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -19,6 +16,7 @@ import { &[Name]&Service } from '../../../services/&[na-me]&/&[na-me]&.service';
 import { ImagePickerConf } from 'ngp-image-picker';
 import { LoggedInUserService } from 'src/app/core/services/loggedInUser/logged-in-user.service';
 import { ShowToastrService } from 'src/app/core/services/show-toastr/show-toastr.service';
+import { schema } from '../../../../build-schema';
 
 @Component({
   selector: 'app-dialog-add-edit-&[na-me]&',
@@ -30,8 +28,6 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
   isSaving = false;
   isEditing = false;
   loggedInUser: any;
-  innerWidth: any;
-  applyStyle = false;
   form: FormGroup;
   languages: any[] = [];
   imageUrl: any;
@@ -40,15 +36,38 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
   _unsubscribeAll: Subject<any>;
   compareFn: ((f1: any, f2: any) => boolean) | null = this.compareByValue;
   selected&[Name]& = null;
-
-  image&[Name]& = null;
-  compressImage&[Name]& = null;
-  image&[Name]&Change = false;
   imagePickerConf: ImagePickerConf = {
     borderRadius: '4px',
     language: 'es',
+    height:'120px',
+    width:'160px'
   };
-
+  //startRemplace
+  function run(schema){
+    let result = '';
+    for(let key in schema){
+      if(schema[key].type=='IMAGE'){
+        result+=`${key}Image&[Name]& = undefined;\n\t${key}Image&[Name]&Change = false;`
+      }
+    }
+    return result
+  }
+  //endRemplace
+  //startRemplace
+  function run(schema){
+    let result = '';
+    for(let key in schema){
+      if(schema[key].type=='ENUM' && !schema[key].noCreate){
+        result+=`all${key.substring(0,1).toUpperCase()}${key.substring(1,key.length)}:any[] = ${JSON.stringify(schema[key].values)}\n;`
+      }
+      if(schema[key].type=='REFERENCE' && !schema[key].noCreate){
+        result+=`all${schema[key].targetTable.substring(0,1).toUpperCase()}${schema[key].targetTable.substring(1,key.length)}:any[] = []\n;`
+      }
+    }
+    return result
+  }
+  //endRemplace
+  
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<DialogAddEdit&[Name]&Component>,
@@ -76,68 +95,77 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
     // -------------------------------------------------------------------------------------------------
   }
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event): void {
-    this.innerWidth = window.innerWidth;
-    if (this.innerWidth > 600) {
-      this.applyStyle = false;
-    } else {
-      this.applyStyle = true;
-    }
-  }
-
   ngOnInit(): void {
     this.createForm();
     //////////////////EVENT ASSOCIATED WITH CHANGE LANGUAGE////////////////////////////
     this.languageForm.valueChanges.pipe(takeUntil(this._unsubscribeAll)).subscribe((data) => {
       this.language = data.lang;
       if (this.form && this.isEditing) {
-        this.form.get('title').setValue(this.selected&[Name]&.title[this.language] || '');
-        this.form.get('subTitle').setValue(this.selected&[Name]&.subTitle[this.language] || '');
+          //startRemplace
+          function run(schema){
+            let result = ''; 
+            for(let key in schema){
+              if(schema[key].type == "JSON" && schema[key].isForTranslate){
+                result+=`this.form.get('${key}').setValue(this.selected&[Name]&.${key}[this.language] || '');`
+              }
+            }
+            return result;
+          }
+          //endRemplace
       }
+    
     });
     //////////////////////////////////////////////
+    this.fetchData();
   }
 
   createForm(): void {
-    if (this.isEditing) {
       this.form = this.fb.group({
-        title: [
-          this.selected&[Name]& && this.selected&[Name]&.title ? this.selected&[Name]&.title[this.language] : null,
-          [Validators.minLength(5), Validators.pattern(/^\w((?!\s{2}).)*/), Validators.required],
-        ],
-        status: [this.selected&[Name]&?.status || 'enabled'],
-        subTitle: [
-          this.selected&[Name]& && this.selected&[Name]&.subTitle
-            ? this.selected&[Name]&.subTitle[this.language]
-            : null,
-          [Validators.maxLength(200)],
-        ],
-        link: [
-          this.selected&[Name]&.link,
-          [
-            Validators.pattern(
-              /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/,
-            ),
-          ],
-        ],
+        //startRemplace
+        function run(schema){
+          let result = '';
+          for(let key in schema){
+            if(schema[key].type!='IMAGE' && !schema[key].noCreate){
+              if(schema[key].type == "JSON" && schema[key].isForTranslate){
+                result+=`${key}: [this.selected&[Name]&?.${key}[this.language],[`
+              }else if(schema[key].type == "JSON" && !schema[key].isForTranslate){
+                result+=`${key}: [this.selected&[Name]&?.${key},[`
+              }else if(schema[key].type == "STRING" || schema[key].type == "NUMBER" 
+              || schema[key].type == "ENUM" ||  schema[key].type == "LONG-STRING"){
+                result+=`${key}: [this.selected&[Name]&?.${key},[`
+              }else if(schema[key].type == "REFERENCE" && !schema[key].isMultiple ){
+                result+=`${key}: [this.selected&[Name]&?.${key.split('Id')[0]},[`
+              }else if(schema[key].type == "REFERENCE" && schema[key].isMultiple ){
+                result+=`${key}: [ this.selected&[Name]&?.${key}.map(i=>i.id),[`
+              }else if(schema[key].type == "DATE" || schema[key].type == "DATEONLY"  ){
+                result+=`${key}: [this.selected&[Name]&?.${key},[`
+              }
+              if(schema[key].isRequired){
+                result+=`Validators.required]],`
+              }else{
+                result+=`]],`
+              }
+            }
+          }
+          return result
+        }
+        //endRemplace
       });
-      this.image&[Name]& = this.selected&[Name]&.image;
-    } else {
-      this.form = this.fb.group({
-        title: [null, [Validators.minLength(5), Validators.pattern(/^\w((?!\s{2}).)*/), Validators.required]],
-        subTitle: [null, [Validators.maxLength(200)]],
-        status: [this.selected&[Name]&?.status || 'enabled'],
-        link: [
-          null,
-          [
-            Validators.pattern(
-              /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/,
-            ),
-          ],
-        ],
-      });
-    }
+       //startRemplace
+        function run(schema){
+          let result = '';
+          for(let key in schema){
+            if(schema[key].type=='IMAGE'){
+              result+=`this.${key}Image&[Name]& = this.selected&[Name]&?.${key};`
+            }
+          }
+          return result
+        }
+      //endRemplace
+  }
+
+  fetchData(){
+    /*Ponga aqui las peticiones para loas datos de Tipo REFERENCE*/ 
   }
 
   ngOnDestroy(): void {
@@ -145,22 +173,41 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
     this._unsubscribeAll.complete();
   }
 
-  onImageChange(dataUri) {
-    this.image&[Name]&Change = true;
-    this.image&[Name]& = dataUri;
+  //startRemplace
+  function run(schema){
+    let result = '';
+    for(let key in schema){
+      if(schema[key].type=='IMAGE'){
+        result+=`on${key.substring(0,1).toUpperCase()}${key.substring(1,key.length)}ImageChange(dataUri) {
+          this.${key}Image&[Name]&Change = true;
+          this.${key}Image&[Name]& = dataUri;
+        }`
+      }
+    }
+    return result
   }
+ //endRemplace
+ 
 
   //////////////////////////////////////////
-
   //////////////////////////////////////////
 
   onSave(): void {
     this.spinner.show();
     let data = this.form.value;
-    if (this.image&[Name]&Change) {
-      data.image = this.image&[Name]&;
+  //startRemplace
+  function run(schema){
+    let result = '';
+    for(let key in schema){
+      if(schema[key].type=='IMAGE'){
+        result+=`if (this.${key}Image&[Name]&Change) {
+          data.${key} = this.${key}Image&[Name]&;
+        }`
+      }
     }
-
+    return result
+  }
+ //endRemplace
     if (!this.isEditing) {
       data = this.parseLanguaje(data, this.language);
       this.&[name]&Service.create&[Name]&(data).subscribe(
@@ -198,21 +245,36 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
   }
 
   parseLanguaje(data, lang) {
-    data.title = { [lang]: data.title };
-    data.subTitle = { [lang]: data.subTitle };
+    //startRemplace
+     function run(schema){
+      let result = ''; 
+      for(let key in schema){
+        if(schema[key].type == "JSON" && schema[key].isForTranslate){
+          result+=`data.${key} = { [lang]: data.${key} };`
+        }
+      }
+      return result;
+    }
+    //endRemplace
     return data;
   }
 
   parseLanguajeEdit(data, olData, lang) {
-    if (data.title != undefined) {
-      olData.title[lang] = data.title;
-      data.title = { ...olData.title };
-    }
-    if (data.subTitle != undefined) {
-      olData.subTitle[lang] = data.subTitle;
-      data.subTitle = { ...olData.subTitle };
-    }
 
+     //startRemplace
+     function run(schema){
+      let result = ''; 
+      for(let key in schema){
+        if(schema[key].type == "JSON" && schema[key].isForTranslate){
+          result+=` if(data.${key} != undefined) {
+                        olData.${key}[lang] = data.${key};
+                        data.${key} = { ...olData.${key} };
+                    }`
+        }
+      }
+      return result;
+    }
+    //endRemplace
     return data;
   }
   ///////////////////////////////////////////////////////////////////////////////////////////

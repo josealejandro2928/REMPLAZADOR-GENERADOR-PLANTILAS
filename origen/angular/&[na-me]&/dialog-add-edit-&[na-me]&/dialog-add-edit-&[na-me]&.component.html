@@ -14,17 +14,6 @@
     <form [formGroup]="form">
       <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="gappx">
 
-        <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutAlign.lt-sm="center stretch" class="mb-2">
-          <div fxLayout="row" class="mt-2" fxLayoutAlign="start start" fxLayoutGap="gappx">
-            <span class="mat-body-2" style="text-transform: uppercase;">{{'The image should be a png 1920x700'}}
-              <mat-icon matTooltip="{{'The image should be a png 1920x700 or with the same aspect ratio'}}" class="iconHelp">help
-              </mat-icon></span>
-          </div>
-
-          <ngp-image-picker [_imageSrc]="(this.isEditing)?imageUrl + selected&[Name]&.image:null" [_config]="imagePickerConf"
-            ($imageChanged)="onImageChange($event)"></ngp-image-picker>
-        </div>
-
         <div fxLayout="row" class="mt-2" fxLayoutAlign="start start" fxLayoutGap="gappx">
           <span class="mat-body-2" style="text-transform: uppercase;">{{'Seleccione su idioma de creación'}}
             <mat-icon matTooltip="{{'El predeterminado es español'}}" class="iconHelp">help</mat-icon></span>
@@ -46,66 +35,106 @@
           </mat-form-field>
         </div>
 
+        //startRemplace
+            function run(schema){
+              let result = '';
+              for(let key in schema){
+                if(schema[key].type=='IMAGE'){
+                  result+=`<div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutAlign.lt-sm="center stretch" class="mb-2">
+                    <div fxLayout="row" class="mt-2" fxLayoutAlign="start start" fxLayoutGap="gappx">
+                      <span class="mat-body-2" style="text-transform: uppercase;">{{'Seleccione la imagen para ${key}'}}
+                        <mat-icon matTooltip="{{'ALguna etiqueta de ayuda referida al ícono'}}" class="iconHelp">help
+                        </mat-icon></span>
+                    </div>
+    
+                    <ngp-image-picker [_imageSrc]="(this.isEditing)?imageUrl + selected&[Name]&.${key}:null" [_config]="imagePickerConf"
+                      ($imageChanged)="on${key.substring(0,1).toUpperCase()}${key.substring(1,key.length)}ImageChange($event)"></ngp-image-picker>
+                  </div>`
+                }
+              }
+              return result
+            }
+        //endRemplace
+
         <mat-divider class="mb-2"></mat-divider>
 
-        <mat-form-field appearance="outline">
-          <mat-label>{{'Título'}}</mat-label>
-          <input required type="text" [formControl]="form.controls['title']" matInput placeholder="{{'Título'}}">
-          <mat-icon class="greyIcon" matSuffix>unarchive</mat-icon>
-          <mat-error *ngIf="form.controls['title'].hasError('required')">
-            {{'Título'}} <strong>{{'is required'}}</strong>
-          </mat-error>
-          <mat-error *ngIf="form.controls['title'].hasError('minlength')">
-            {{'El nombre del artículo debe tener al menos 5 caracteres'}}
-          </mat-error>
-          <mat-error *ngIf="form.controls['title'].hasError('pattern')">
-            {{'El nombre debe contener carateres alfanuméricos'}}
-          </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{'Subtítulo'}}</mat-label>
-          <textarea #text rows="2" matInput [formControl]="form.controls['subTitle']" placeholder="{{'Subtítulo'}}"></textarea>
-          <mat-icon class="greyIcon" matSuffix>edit</mat-icon>
-          <mat-hint align="end">{{text.value.length}} / 200</mat-hint>
-          <mat-error *ngIf="form.controls['subTitle'].hasError('maxlength')">
-            {{'El texto secundario solo debe contener 100 caractéres'}}
-          </mat-error>
-        </mat-form-field>
-
-
-        <div fxLayout="row" class="mt-2" fxLayoutAlign="start start" fxLayoutGap="gappx">
-          <span class="mat-body-2" style="text-transform: uppercase;">{{'INTRODUZCA UN ENLACE PARA REFERIR'}}
-            <mat-icon
-              matTooltip="{{'Es un enlace al que le gustaría hacer referencia en caso de un anuncio u otra página para visitar, es opcional'}}"
-              class="iconHelp">help</mat-icon></span>
+        <div fxLayout="row wrap" fxLayoutAlign="space-between start" fxLayoutGap="gappx">
+          //startRemplace
+          function run(schema){
+            let result = '';
+            for(let key in schema){
+              if(schema[key].type!='IMAGE' && !schema[key].noCreate){
+                if(schema[key].type == "STRING" || schema[key].type == "NUMBER" || schema[key].type == "JSON"){
+                  result+=` 
+                  <mat-form-field fxFlex="${schema[key].fxFlex || 48}" fxFlex.lt-md="100" appearance="outline">
+                    <mat-label>
+                       <span style="text-transform: capitalize;">{{'${key}'}}</span>
+                    </mat-label>
+                    <input matInput [formControl]="form.get('${key}')" placeholder="{{'${key}'}}" ${schema[key].isRequired?'required':''} `
+                
+                  if(schema[key].isPassword){
+                    result+=`type="password"></mat-form-field>`
+                  }else if(schema[key].isEmail){
+                    result+=`type="email"></mat-form-field>`
+                  }else{
+                    result+=`type="${schema[key].type == 'NUMBER'?'number':'text'}"></mat-form-field>`
+                  }
+                }else if(schema[key].type == "JSON" || schema[key].type == "LONG-STRING"){
+                  result+=` <mat-form-field fxFlex="${schema[key].fxFlex || 48}" fxFlex.lt-md="100" appearance="outline">
+                    <mat-label>
+                       <span style="text-transform: capitalize;">{{'${key}'}}</span>
+                    </mat-label>
+                    <textarea ${schema[key].isRequired?'required':''}  rows="2" matInput  [formControl]="form.get('${key}')"
+                    placeholder="{{'${key}'}}"></textarea>
+                  </mat-form-field>`
+                }else if(schema[key].type == "DATE" || schema[key].type == "DATEONLY"){
+                  result+=`<mat-form-field fxFlex="${schema[key].fxFlex || 48}" fxFlex.lt-md="100" appearance="outline">
+                    <mat-label>
+                       <span style="text-transform: capitalize;">{{'${key}'}}</span>
+                    </mat-label>
+                    <input ${schema[key].isRequired?'required':''} [formControl]="form.get('${key}')" matInput [matDatepicker]="picker${Date.now()}">
+                    <mat-datepicker-toggle matSuffix [for]="picker${Date.now()}"></mat-datepicker-toggle>
+                    <mat-datepicker #picker${Date.now()}></mat-datepicker>
+                  </mat-form-field>`
+                }else if(schema[key].type == "ENUM"){
+                  result+=`<mat-form-field fxFlex="100"  appearance="outline">
+                    <mat-label>
+                       <span style="text-transform: capitalize;">{{'${key}'}}</span>
+                    </mat-label>
+                    <mat-select ${schema[key].isRequired?'required':''} [formControl]="form.get('${key}')" placeholder="{{'${key}'}}">
+                      <mat-option *ngFor="let ${key} of all${key.substring(0,1).toUpperCase()}${key.substring(1,key.length)} ;let i=index" [value]="${key}">
+                        <div fxLayout="row" fxLayoutAlign="start center">
+                          <span class="mat-body-2">
+                            {{${key}}}
+                          </span>
+                        </div>
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>`
+                }else if(schema[key].type == "REFERENCE"){
+                  result+=`<mat-form-field fxFlex="100"  appearance="outline">
+                    <mat-label> 
+                      <span style="text-transform: capitalize;">{{'${key}'}}</span>
+                    </mat-label>
+                    <mat-select ${schema[key].isMultiple?'multiple':''}  ${schema[key].isRequired?'required':''} [formControl]="form.get('${key}')" placeholder="{{'${key}'}}">
+                      <mat-option *ngFor="let ${key} of all${schema[key].targetTable.substring(0,1).toUpperCase()}${schema[key].targetTable.substring(1,key.length)} ;let i=index" [value]="${key}.id">
+                        <div fxLayout="row" fxLayoutAlign="start center">
+                          <span class="mat-body-2">
+                            {{${key}.${schema[key].targetAttribute}}}
+                          </span>
+                        </div>
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>`
+                }
+              }
+            }
+            return result;
+          }
+          //endRemplace
         </div>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{'Link'}}
-          </mat-label>
-          <input type="text" [formControl]="form.controls['link']" matInput placeholder="{{'Link'}}">
-          <mat-icon class="greyIcon" matSuffix>link</mat-icon>
-          <mat-error *ngIf="form.controls['link'].hasError('pattern')">
-            {{'Url'}} <strong>{{'is not valid'}}</strong>
-          </mat-error>
-        </mat-form-field>
-
-        <p class="mat-body-2 uppercase"> Estado</p>
-        <mat-form-field appearance="outline">
-          <mat-select required [formControl]="form.get('status')" placeholder="{{'Estado'}}">
-            <mat-option *ngFor="let status of [{id:'pending',name:'pendiente'},
-            {id:'enabled',name:'habilitado'},
-            {id:'disabled',name:'deshabilitado'}];let i=index" [value]="status.id">
-              <div fxLayout="row" fxLayoutAlign="start center">
-                <span class="mat-body-2 uppercase">
-                  {{status.name}}
-                </span>
-              </div>
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
+      
+      
 
 
 
@@ -119,7 +148,7 @@
   </div>
 
   <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end start">
-    <button mat-flat-button (click)="onSave()" [disabled]="this.form.invalid|| !image&[Name]&" color="primary">{{'Guardar'}}</button>
+    <button mat-flat-button (click)="onSave()" [disabled]="this.form.invalid" color="primary">{{'Guardar'}}</button>
 
   </div>
 

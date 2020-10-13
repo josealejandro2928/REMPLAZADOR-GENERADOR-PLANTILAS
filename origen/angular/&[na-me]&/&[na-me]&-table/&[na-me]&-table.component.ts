@@ -1,7 +1,6 @@
 import { IPagination } from 'src/app/core/classes/pagination.class';
-import { IUser } from 'src/app/core/classes/user.class';
 import { debounceTime, takeUntil, distinctUntilChanged } from 'rxjs/operators';
-import { Component, OnInit,ViewChild, HostListener, OnDestroy } from '@angular/core';
+import { Component, OnInit,ViewChild, OnDestroy } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';

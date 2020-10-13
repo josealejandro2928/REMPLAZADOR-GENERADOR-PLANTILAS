@@ -33,9 +33,14 @@ function processFunction(path) {
     }
     let extention = path.split('.').pop();
 
-    if (extention == 'js' || extention == 'js') {
+    if (extention == 'js') {
         final = jsbeautify(final, {
             indent_size: 4
+        })
+    }
+    if (extention == 'ts') {
+        final = jsbeautify(final, {
+            indent_size: 2
         })
     }
     if (extention == 'html') {

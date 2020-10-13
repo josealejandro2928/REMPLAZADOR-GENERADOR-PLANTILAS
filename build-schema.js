@@ -121,6 +121,13 @@ function getProperties(attribute, properties) {
       result.min = +prop.split(">")[1];
     } else if (prop.includes("<")) {
       result.max = +prop.split("<")[1];
+    } else if (prop.startsWith("width=")) {
+      result.fxFlex = +prop.split("=")[1];
+    } else if (prop.startsWith("ref-create")) {
+      result.createReference = true;
+      result.referenceFields = prop.split("=")[1].split(",") || [];
+    } else if (prop == "no-create") {
+      result.noCreate = true;
     }
   }
   return result;
@@ -134,7 +141,7 @@ function generateNames(string) {
     "&[name]&": names.varize(tableName),
     "&[names]&": names.varize(tableName) + "s",
     "&[Name]&": names.fileNameToModelName(tableName),
-    "&[Names]&": names.fileNameToModelName(tableName) + 's',
+    "&[Names]&": names.fileNameToModelName(tableName) + "s",
   };
   return a;
 }

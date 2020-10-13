@@ -126,7 +126,7 @@ exports.loadModel = function loadModel() {
                 if(schema[key].type == 'REFERENCE'){
                     if(!schema[key].isMultiple){
                         result+= `models.&[Name]&.belongsTo(models.${schema[key].targetTable}, {
-                            as: '${schema[key].targetTable}'
+                            as: '${key.split('Id')[0]}'
                             });`
                     }else{
                         result+= `models.&[Name]&.hasMany(models.${schema[key].targetTable}, {
