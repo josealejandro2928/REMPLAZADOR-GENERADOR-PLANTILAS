@@ -17,12 +17,12 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from '@angular/material/select';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { DialogAddEdit&[Name]&Component } from './dialog-add-edit-&[na-me]&/dialog-add-edit-&[na-me]&.component';
 import { &[Name]&RoutingModule } from './&[na-me]&-routing.module';
 import { &[Name]&TableComponent } from './&[na-me]&-table/&[na-me]&-table.component';
 import { MatSortModule } from '@angular/material/sort';
 import { NgpImagePickerModule } from 'ngp-image-picker';
+import { PipesModule } from 'src/app/core/pipes/pipes.module';
 ///////////////////////////////////////////////////////////////////
 
 @NgModule({
@@ -45,10 +45,10 @@ import { NgpImagePickerModule } from 'ngp-image-picker';
     MatTableModule,
     MatSlideToggleModule,
     MatSelectModule,
-    MatAutocompleteModule,
     &[Name]&RoutingModule,
     MatSortModule,
     NgpImagePickerModule,
+    PipesModule
   ],
   declarations: [&[Name]&TableComponent, DialogAddEdit&[Name]&Component],
   entryComponents: [DialogAddEdit&[Name]&Component],
