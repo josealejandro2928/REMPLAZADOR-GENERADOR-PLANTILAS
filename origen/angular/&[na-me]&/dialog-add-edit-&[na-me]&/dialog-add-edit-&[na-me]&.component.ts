@@ -152,7 +152,7 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
               }else if(schema[key].type == "JSON" && !schema[key].isForTranslate){
                 result+=`${key}: [this.selected&[Name]&?.${key},[`
               }else if(schema[key].type == "STRING" || schema[key].type == "NUMBER" 
-              || schema[key].type == "ENUM" ||  schema[key].type == "LONG-STRING"){
+              || schema[key].type == "ENUM" || schema[key].type == "BOOLEAN"  ||  schema[key].type == "LONG-STRING"){
                 result+=`${key}: [this.selected&[Name]&?.${key},[`
               }else if(schema[key].type == "REFERENCE" && !schema[key].isMultiple ){
                 result+=`${key}: [this.selected&[Name]&?.${key.split('Id')[0]}?.id,[`
@@ -196,7 +196,7 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
         this.all${schema[key].targetTable} = data.data;
       },e=>{
         //catch error
-      })`
+      });\n`
     }
   }
   return result

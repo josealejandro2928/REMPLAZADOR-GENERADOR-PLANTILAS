@@ -62,6 +62,7 @@
           //startRemplace
           function run(schema){
             let result = '';
+            let i=0;
             for(let key in schema){
               if(schema[key].type!='IMAGE' && !schema[key].noCreate){
                 if(schema[key].type == "STRING" || schema[key].type == "NUMBER" || schema[key].type == "JSON"){
@@ -92,12 +93,17 @@
                     <mat-label>
                        <span style="text-transform: capitalize;">{{'${key}'}}</span>
                     </mat-label>
-                    <input ${schema[key].isRequired?'required':''} [formControl]="form.get('${key}')" matInput [matDatepicker]="picker${Date.now()}">
-                    <mat-datepicker-toggle matSuffix [for]="picker${Date.now()}"></mat-datepicker-toggle>
-                    <mat-datepicker #picker${Date.now()}></mat-datepicker>
+                    <input ${schema[key].isRequired?'required':''} [formControl]="form.get('${key}')" matInput [matDatepicker]="picker${i}">
+                    <mat-datepicker-toggle matSuffix [for]="picker${i}"></mat-datepicker-toggle>
+                    <mat-datepicker #picker${i}></mat-datepicker>
                   </mat-form-field>`
+                }else if(schema[key].type == "BOOLEAN"){
+                  result+=`<mat-slide-toggle matTooltip="Toogle ${key}"
+                          [formControl]="form.get('${key}')">
+                          <span class="mat-body-2">${key}</span>
+                          </mat-slide-toggle>`
                 }else if(schema[key].type == "ENUM"){
-                  result+=`<mat-form-field fxFlex="100"  appearance="outline">
+                  result+=`<mat-form-field fxFlex="${schema[key].fxFlex || 48}" fxFlex.lt-md="100"  appearance="outline">
                     <mat-label>
                        <span style="text-transform: capitalize;">{{'${key}'}}</span>
                     </mat-label>
@@ -112,7 +118,7 @@
                     </mat-select>
                   </mat-form-field>`
                 }else if(schema[key].type == "REFERENCE"){
-                  result+=`<mat-form-field fxFlex="100"  appearance="outline">
+                  result+=`<mat-form-field fxFlex="${schema[key].fxFlex || 48}" fxFlex.lt-md="100"  appearance="outline">
                     <mat-label> 
                       <span style="text-transform: capitalize;">{{'${key}'}}</span>
                     </mat-label>
@@ -128,6 +134,7 @@
                   </mat-form-field>`
                 }
               }
+              i++;
             }
             return result;
           }

@@ -129,6 +129,21 @@
                         </td>
                       </ng-container> \n \t \t`
             break;
+            case "BOOLEAN":
+            result += `<ng-container matColumnDef="${key}">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                          <span class="mat-body-2" style="text-transform: capitalize;">{{'${key}'}}</span>
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                          <span style="color: #43a047;" *ngIf="element.${key}==true" class="material-icons">
+                            done
+                          </span>
+                          <span style="color: #e53935;" *ngIf="!element.${key}" class="material-icons">
+                            clear
+                          </span>
+                        </td>
+                      </ng-container> \n \t \t`
+            break;
             case "LONG-STRING":
             result += `<ng-container matColumnDef="${key}">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>

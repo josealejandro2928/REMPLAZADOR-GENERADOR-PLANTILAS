@@ -146,7 +146,7 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
       function run(schema){
         let result = '';
         for(let key in schema){
-          if(schema[key].showFieldInTable && (schema[key].type == "STRING" || schema[key].type == "NUMBER" || schema[key].type == "ENUM" ) ){
+          if(schema[key].showFieldInTable && (schema[key].type == "STRING" || schema[key].type == "LONG-STRING" || schema[key].type == "NUMBER" || schema[key].type == "ENUM" ) ){
             result+= `this.query.filter.properties.push('filter[$or][${key}][$like]'); \n \t \t \t`
           }
         }

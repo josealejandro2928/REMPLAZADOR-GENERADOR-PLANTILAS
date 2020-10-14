@@ -21,8 +21,10 @@ import { DialogAddEdit&[Name]&Component } from './dialog-add-edit-&[na-me]&/dial
 import { &[Name]&RoutingModule } from './&[na-me]&-routing.module';
 import { &[Name]&TableComponent } from './&[na-me]&-table/&[na-me]&-table.component';
 import { MatSortModule } from '@angular/material/sort';
+import {MatDatepickerModule} from '@angular/material/datepicker';
 import { NgpImagePickerModule } from 'ngp-image-picker';
 import { PipesModule } from 'src/app/core/pipes/pipes.module';
+import {MatNativeDateModule} from
 ///////////////////////////////////////////////////////////////////
 
 @NgModule({
@@ -47,6 +49,8 @@ import { PipesModule } from 'src/app/core/pipes/pipes.module';
     MatSelectModule,
     &[Name]&RoutingModule,
     MatSortModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     NgpImagePickerModule,
     PipesModule
   ],

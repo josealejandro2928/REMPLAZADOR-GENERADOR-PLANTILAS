@@ -23,6 +23,9 @@ module.exports = {
                     case "STRING":
                         result+=`"type": Sequelize.STRING, \n \t`;
                         break;
+                    case "BOOLEAN":
+                        result+=`"type": Sequelize.BOOLEAN, \n \t`;
+                        break;
                     case "LONG-STRING":
                         result+=`"type": Sequelize.TEXT('long'), \n \t`;
                         break;
@@ -61,15 +64,25 @@ module.exports = {
                         }
                     break;
                 }
-                if(schema[key].isRequired){
-                    result+=`"allowNull":false,\n\t`;
-                }
-                if(schema[key].unique){
-                    result+=`"unique":true,\n\t`;
-                }
                 if(schema[key].type == "REFERENCE" && schema[key].isMultiple ){
                     result += '';
                 }else{
+                    if(schema[key].isRequired){
+                        result+=`"allowNull":false,\n\t`;
+                    }
+                    if(schema[key].isEmail){
+                        result+=`"isEmail":true,\n\t`;
+                    }
+                    if(schema[key].unique){
+                        result+=`"unique":true,\n\t`;
+                    }
+                    if(schema[key].isPassword){
+                        result+=`set: function (_new${key}) {
+                            var rounds = 8;
+                            var hashed${key} = bcrypt.hashSync(_new${key}, rounds);
+                            this.setDataValue('${key}', hashed${key});
+                        }`
+                    }
                     result +=`}\n,`
                 }
              

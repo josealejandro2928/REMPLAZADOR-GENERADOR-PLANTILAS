@@ -61,6 +61,9 @@ function getProperties(attribute, properties) {
     case "txt":
       result.type = "LONG-STRING";
       break;
+    case "bool":
+      result.type = "BOOLEAN";
+      break;
     case "img":
       result.type = "IMAGE";
       break;
@@ -74,7 +77,6 @@ function getProperties(attribute, properties) {
       result.type = "DATEONLY";
       break;
     default:
-      console.log("+properties[0].constructor", +properties[0].constructor);
       if (isNaN(properties[0]) == false) {
         result.type = "NUMBER";
         if (properties[0].indexOf(".") != -1 || properties[0].length > 6) {
@@ -82,9 +84,16 @@ function getProperties(attribute, properties) {
         }
         break;
       } else if (properties[0].startsWith("[")) {
+       
+        let a ='';
         result.type = "REFERENCE";
         result.isMultiple = true;
-        result.targetTable = properties[0].split("[")[1].split("]")[0];
+        let metaDataTable = properties[0].split("[")[1].split("]")[0];
+        console.log("getProperties -> result.targetTable", metaDataTable)
+        result.targetTable = metaDataTable.split('->')[0]
+        result.oneToMany = (metaDataTable.split('->')[1])?false:true
+        result.manyToMany = (metaDataTable.split('->')[1])?true:false
+        result.throughTable = (result.manyToMany)?metaDataTable.split('->')[1]:null;
       } else if (attribute.endsWith("Id")) {
         result.type = "REFERENCE";
         result.targetTable = properties[0];
