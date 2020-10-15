@@ -21,9 +21,10 @@ function getTableName(string) {
 }
 
 function getAtributes(string) {
+  console.log("getAtributes -> string", string)
   let atributes = string.split("{")[1].split("}")[0].split("\n");
   let data = {};
-  console.log(atributes);
+  // console.log(atributes);
   for (let key of atributes) {
     if (key.length > 3) {
       let properties = key.split(":")[1].split("\r")[0].trim().split(" ");
@@ -171,5 +172,5 @@ function run(structString) {
 
 /*
  */
-let data = fs.readFileSync("./struct.json", "utf-8");
-module.exports = run(data);
+// let data = fs.readFileSync("./struct.json", "utf-8");
+module.exports = run;
