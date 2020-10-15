@@ -24,7 +24,7 @@ import { MatSortModule } from '@angular/material/sort';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import { NgpImagePickerModule } from 'ngp-image-picker';
 import { PipesModule } from 'src/app/core/pipes/pipes.module';
-import {MatNativeDateModule} from
+import { MatNativeDateModule } from '@angular/material/core';
 ///////////////////////////////////////////////////////////////////
 
 @NgModule({

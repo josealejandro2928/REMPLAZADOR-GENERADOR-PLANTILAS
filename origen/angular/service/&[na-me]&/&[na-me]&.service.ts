@@ -44,31 +44,52 @@ export class &[Name]&Service {
       }
     }
     if (params) {
-      Object.keys(params).map((key) => {
-        if (params[key] != undefined) {
-          if (params[key].constructor != Array) {
-            httpParams = httpParams.set(
-              `filter[$and][${key}]`,
-              params[key].toString()
-            );
-          }
-          if (params[key].constructor == Array && params[key].length) {
-            if (params[key].length == 1) {
+
+      //startRemplace
+      function run(schema){
+        let result ='' 
+        for(let key in schema){
+          if(schema[key].showFieldInTable && schema[key].type == "STRING" || schema[key].type == "NUMBER" || schema[key].type == "LONG-STRING" 
+          || schema[key].type == "JSON" || schema[key].type == "DATEONLY" || schema[key].type == "DATE" ){
+            result += `if(params.${key} !=undefined){
               httpParams = httpParams.set(
-                `filter[$and][${key}]`,
-                params[key][0].toString()
-              );
-            } else {
-              params[key].map((item) => {
-                httpParams = httpParams.append(
-                  `filter[$and][${key}]`,
-                  item.toString()
+                'filter[$and][${key}][$like]','%' + params.${key}.toString() + '%');
+            }`
+          }else if(schema[key].showFieldInTable && schema[key].type == "BOOLEAN"){
+            result += `if(params.${key} !=undefined){
+              httpParams = httpParams.set(
+                'filter[$and][${key}]',params.${key}.toString());
+            }`
+          }else if(schema[key].showFieldInTable && schema[key].type != "IMAGE"){
+            result += `if(params.${key} != undefined){
+              if (params.${key}.constructor != Array) {
+                httpParams = httpParams.set(
+                  'filter[$and][${key}]',
+                  params.${key}.toString()
                 );
-              });
-            }
+              }
+              if (params.${key}.constructor == Array && params.${key}.length) {
+                if (params.${key}.length == 1) {
+                  httpParams = httpParams.set(
+                    'filter[$and][${key}]',
+                    params.${key}[0].toString()
+                  );
+                } else {
+                  params.${key}.map((item) => {
+                    httpParams = httpParams.append(
+                      'filter[$and][${key}]',
+                      item.toString()
+                    );
+                  });
+                }
+              }
+            }`
           }
+
         }
-      });
+        return result;
+      }
+      //endRemplace
     }
     return this.httpClient.get<any>(this.url, { params: httpParams });
   }

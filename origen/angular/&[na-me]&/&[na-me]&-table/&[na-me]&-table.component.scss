@@ -1,12 +1,12 @@
-@import "../../../../../assets/scss/theme/variables";
-@import "src/assets/scss/mixins/breakpoints";
+@import '../../../../../assets/scss/theme/variables';
 
 :host {
   padding: 16px;
-}
-
-@include media-breakpoint("lt-sm") {
-  padding: 16px 0px !important;
+  position: relative;
+  box-sizing: border-box;
+  @media (max-width: 800px) {
+    padding: 16px 2px !important;
+  }
 }
 
 mat-toolbar-row {
@@ -27,7 +27,6 @@ table {
 
 #actionsHover {
   color: #616161 !important;
-
 }
 
 .rowData {
@@ -39,12 +38,11 @@ table {
 }
 
 .responsive_table {
-  max-height: 70vh;
+  max-height: 78vh;
   overflow: auto;
   padding: 1px;
   width: 100% !important;
-
-  @include media-breakpoint("lt-md") {
+  @media (max-width: 800px) {
     table {
       min-width: 800px !important;
 
@@ -65,6 +63,5 @@ table {
       display: block;
       min-width: 800px !important;
     }
-
   }
 }

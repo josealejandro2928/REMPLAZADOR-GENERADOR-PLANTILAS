@@ -118,11 +118,12 @@
                     </mat-select>
                   </mat-form-field>`
                 }else if(schema[key].type == "REFERENCE"){
+                  
                   result+=`<mat-form-field fxFlex="${schema[key].fxFlex || 48}" fxFlex.lt-md="100"  appearance="outline">
                     <mat-label> 
                       <span style="text-transform: capitalize;">{{'${key}'}}</span>
                     </mat-label>
-                    <mat-select ${schema[key].isMultiple?'multiple':''}  ${schema[key].isRequired?'required':''} [formControl]="form.get('${key}')" placeholder="{{'${key}'}}">
+                    <mat-select ${schema[key].isMultiple?'multiple':''}  ${schema[key].isRequired?'required':''} [formControl]="${schema[key].isMultiple?`form.get('${key}Ids')`:`form.get('${key}')`}" placeholder="{{'${key}'}}">
                       <mat-option *ngFor="let ${key} of all${schema[key].targetTable.substring(0,1).toUpperCase()}${schema[key].targetTable.substring(1,key.length)} ;let i=index" [value]="${key}.id">
                         <div fxLayout="row" fxLayoutAlign="start center">
                           <span class="mat-body-2">

@@ -157,7 +157,7 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
               }else if(schema[key].type == "REFERENCE" && !schema[key].isMultiple ){
                 result+=`${key}: [this.selected&[Name]&?.${key.split('Id')[0]}?.id,[`
               }else if(schema[key].type == "REFERENCE" && schema[key].isMultiple ){
-                result+=`${key}: [ this.selected&[Name]&?.${key}.map(i=>i?.id),[`
+                result+=`${key}Ids: [ this.selected&[Name]&?.${key}.map(i=>i?.id),[`
               }else if(schema[key].type == "DATE" || schema[key].type == "DATEONLY"  ){
                 result+=`${key}: [this.selected&[Name]&?.${key},[`
               }

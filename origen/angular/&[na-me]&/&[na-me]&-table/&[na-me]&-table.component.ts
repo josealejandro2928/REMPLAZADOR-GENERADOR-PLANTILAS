@@ -16,6 +16,18 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+//startRemplace
+function run(schema){
+  let result = '';
+  for(let key in schema){
+    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+      result+=`import { ${schema[key].targetTable}Service } from 'src/app/backend/services/${schema[key].targetTable.toLowerCase()}/${schema[key].targetTable.toLowerCase()}.service';\n`
+    }
+  }
+  return result
+}
+//endRemplace
+
 
 @Component({
   selector: 'app-&[na-me]&-table',
@@ -25,6 +37,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 export class &[Name]&TableComponent implements OnInit, OnDestroy {
   all&[Names]&: any[] = [];
   searchForm: FormGroup;
+  formFilters: FormGroup;
   dataSource: MatTableDataSource<any>;
   showFilter&[Name]&: boolean;
   loggedInUser: any;
@@ -55,13 +68,30 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
   //startRemplace
   function run(schema){
     let dp = ['select'];
+    let dpF = ['selectF']
     for(let key in schema){
       if(schema[key].showFieldInTable){
         dp.push(key);
+        dpF.push(`${key}F`);
       }
     } 
     dp.push('actions');
-    return  `displayedColumns: string[] = ${JSON.stringify(dp)}`
+    dpF.push('actionsF');
+    return  `displayedColumns: string[] = ${JSON.stringify(dp)};\ndisplayedColumnsFilters: string[] = ${JSON.stringify(dpF)}`
+  }
+  //endRemplace
+  //startRemplace
+  function run(schema){
+    let result = '';
+    for(let key in schema){
+      if(schema[key].showFieldInTable && schema[key].type=='ENUM' && !schema[key].noCreate){
+        result+=`all${key.substring(0,1).toUpperCase()}${key.substring(1,key.length)}:any[] = ${JSON.stringify(schema[key].values)}\n;`
+      }
+      if(schema[key].type=='REFERENCE' && !schema[key].noCreate){
+        result+=`all${schema[key].targetTable.substring(0,1).toUpperCase()}${schema[key].targetTable.substring(1,key.length)}:any[] = []\n;`
+      }
+    }
+    return result
   }
   //endRemplace
 
@@ -71,9 +101,19 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
     private loggedInUserService: LoggedInUserService,
     private &[name]&Service: &[Name]&Service,
     private breadcrumbService: BreadcrumbService,
-
     public dialog: MatDialog,
     public utilsService: UtilsService,
+    //startRemplace
+ function run(schema){
+  let result = '';
+  for(let key in schema){
+    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+      result+=`private ${schema[key].targetTable.toLowerCase()}Service:${schema[key].targetTable}Service,`
+    }
+  }
+  return result
+}
+//endRemplace
     private showToastr: ShowToastrService,
   ) {
     this._unsubscribeAll = new Subject<any>();
@@ -120,6 +160,11 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
         }
       });
 
+    this.formFilters.valueChanges.pipe(debounceTime(500)).subscribe((data) => {
+      this.refreshData();
+    });
+     //////////////////////////////////////////////
+     this.fetchData();
     ///////////////////////////////////////////
     ///////////////////////////////////////////
 
@@ -129,6 +174,25 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
 
     ///////////////////////////////////////////////
     //////////////////////////////////////////////
+  }
+
+  fetchData(){
+    /*Ponga aqui las peticiones para loas datos de Tipo REFERENCE*/ 
+      //startRemplace
+ function run(schema){
+  let result = '';
+  for(let key in schema){
+    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+      result+=`this.${schema[key].targetTable.toLowerCase()}Service.getAll${schema[key].targetTable}s().subscribe((data)=>{
+        this.all${schema[key].targetTable} = data.data;
+      },e=>{
+        //catch error
+      });\n`
+    }
+  }
+  return result
+}
+//endRemplace
   }
 
   ngOnDestroy() {
@@ -156,7 +220,8 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
     } else {
       this.query.filter.filterText = '';
     }
-    this.&[name]&Service.getAll&[Names]&(this.query).subscribe(
+    const searchFilter = this.formFilters.value;
+    this.&[name]&Service.getAll&[Names]&(this.query,searchFilter).subscribe(
       (data) => {
         this.initTable(data.data);
         this.query.total = data.meta.pagination.total;
@@ -179,6 +244,18 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
     this.searchForm = this.fb.group({
       textCtrl: ['', [Validators.required]],
     });
+    //startRemplace
+    function run(schema){
+      let result = ` this.formFilters = this.fb.group({`;
+      for(let key in schema){
+        if(schema[key].showFieldInTable){
+          result+= `${key}: [null,[]],`
+        }
+      }
+      result+='});\n';
+      return result;
+    };
+    //endRemplace
   }
 
   showSearchForm() {
