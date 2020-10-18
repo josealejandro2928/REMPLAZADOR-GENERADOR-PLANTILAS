@@ -112,5 +112,42 @@ for (let i = 0; i < data.length; i++) {
     let names = require("./build-schema")(temp)["names"];
     createFolder("./result", names, schema);
     navigateFolders("./origen", names, schema);
+    renameMigrations(schema, names, i);
   }
+}
+
+/////////////////UTILS////////////
+function renameMigrations(schema, names, index) {
+  function parseNumberNotation(number) {
+    if (number < 10) {
+      return `000${number}`;
+    }
+    if (number < 100) {
+      return `00${number}`;
+    }
+    if (number < 100) {
+      return `0${number}`;
+    }
+    return "0000";
+  }
+
+  let oldPathMigration = Path.resolve(
+    "result",
+    "node",
+    "migration",
+    `0004-create-table-${names["&[na-me]&"]}.js`
+  );
+  let newPathMigration = Path.resolve(
+    "result",
+    "node",
+    "migration",
+    `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}-${
+      parseNumberNotation(index + 1)
+    }-create-table-${names["&[na-me]&"]}.js`
+  );
+  fs.rename(oldPathMigration, newPathMigration, (error) => {
+    if (error) {
+      console.log(error);
+    }
+  });
 }

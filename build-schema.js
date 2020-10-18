@@ -21,7 +21,7 @@ function getTableName(string) {
 }
 
 function getAtributes(string) {
-  console.log("getAtributes -> string", string)
+  console.log("getAtributes -> string", string);
   let atributes = string.split("{")[1].split("}")[0].split("\n");
   let data = {};
   // console.log(atributes);
@@ -85,16 +85,17 @@ function getProperties(attribute, properties) {
         }
         break;
       } else if (properties[0].startsWith("[")) {
-       
-        let a ='';
+        let a = "";
         result.type = "REFERENCE";
         result.isMultiple = true;
         let metaDataTable = properties[0].split("[")[1].split("]")[0];
-        console.log("getProperties -> result.targetTable", metaDataTable)
-        result.targetTable = metaDataTable.split('->')[0]
-        result.oneToMany = (metaDataTable.split('->')[1])?false:true
-        result.manyToMany = (metaDataTable.split('->')[1])?true:false
-        result.throughTable = (result.manyToMany)?metaDataTable.split('->')[1]:null;
+        console.log("getProperties -> result.targetTable", metaDataTable);
+        result.targetTable = metaDataTable.split("->")[0];
+        result.oneToMany = metaDataTable.split("->")[1] ? false : true;
+        result.manyToMany = metaDataTable.split("->")[1] ? true : false;
+        result.throughTable = result.manyToMany
+          ? metaDataTable.split("->")[1]
+          : null;
       } else if (attribute.endsWith("Id")) {
         result.type = "REFERENCE";
         result.targetTable = properties[0];
@@ -138,6 +139,8 @@ function getProperties(attribute, properties) {
       result.referenceFields = prop.split("=")[1].split(",") || [];
     } else if (prop == "no-create") {
       result.noCreate = true;
+    } else if (prop == "long") {
+      result.longTxt = true;
     }
   }
   return result;

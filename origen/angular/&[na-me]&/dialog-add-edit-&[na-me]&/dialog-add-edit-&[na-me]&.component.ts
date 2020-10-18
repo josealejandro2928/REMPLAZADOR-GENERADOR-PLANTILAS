@@ -44,7 +44,6 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
   languageForm: FormControl;
   language: any;
   _unsubscribeAll: Subject<any>;
-  compareFn: ((f1: any, f2: any) => boolean) | null = this.compareByValue;
   selected&[Name]& = null;
   imagePickerConf: ImagePickerConf = {
     borderRadius: '4px',
@@ -77,6 +76,8 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
     return result
   }
   //endRemplace
+  /////////////////////////////////////////////////
+  languageData: any = {};
   
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -107,33 +108,30 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
     this.selected&[Name]& = data.selected&[Name]&;
     this.imageUrl = environment.imageUrl;
 
-    // ------------------LANGUAGE INITIALIZATION----------------
-    this.languages = this.loggedInUserService.getlaguages();
-    this.language = this.loggedInUserService.getLanguage() ? this.loggedInUserService.getLanguage().lang : 'es';
-    this.languageForm = new FormControl(
-      this.loggedInUserService.getLanguage() ? this.loggedInUserService.getLanguage() : this.languages[0],
-    );
-    // -------------------------------------------------------------------------------------------------
+ // ------------------LANGUAGE INITIALIZATION----------------
+ this.languages = this.loggedInUserService.getlaguages();
+ this.language = this.loggedInUserService.getLanguage() ? this.loggedInUserService.getLanguage().lang : 'es';
+ this.languageForm = new FormControl(this.language);
+ // -------------------------------------------------------------------------------------------------
   }
 
   ngOnInit(): void {
     this.createForm();
     //////////////////EVENT ASSOCIATED WITH CHANGE LANGUAGE////////////////////////////
     this.languageForm.valueChanges.pipe(takeUntil(this._unsubscribeAll)).subscribe((data) => {
-      this.language = data.lang;
-      if (this.form && this.isEditing) {
-          //startRemplace
-          function run(schema){
-            let result = ''; 
-            for(let key in schema){
-              if(schema[key].type == "JSON" && schema[key].isForTranslate){
-                result+=`this.form.get('${key}').setValue(this.selected&[Name]&.${key}[this.language] || '');`
-              }
+      this.updateLanguageData();
+      this.language = data;
+      //startRemplace
+        function run(schema){
+          let result = ''; 
+          for(let key in schema){
+            if(schema[key].type == "JSON" && schema[key].isForTranslate){
+              result+=`this.form.get('${key}').setValue(this.languageData.${key}[this.language] || '');`
             }
-            return result;
           }
-          //endRemplace
-      }
+          return result;
+        }
+      //endRemplace
     
     });
     //////////////////////////////////////////////
@@ -183,6 +181,21 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
           return result
         }
       //endRemplace
+    
+    //startRemplace
+       function run(schema){
+        let result = ''; 
+        for(let key in schema){
+          if(schema[key].type == "JSON" && schema[key].isForTranslate){
+            result+=`this.languageData.${key} = this.selected&[Name]&?.${key} ? { ...this.selected&[Name]&.${key} } 
+                    : { [this.language]: this.form.get('${key}').value };`
+          }
+        }
+        return result;
+      }
+      
+    
+    //endRemplace
   }
 
   fetchData(){
@@ -230,7 +243,10 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
 
   onSave(): void {
     this.spinner.show();
-    let data = this.form.value;
+    this.updateLanguageData();
+    let data = { ...this.form.value, ...this.languageData };
+    this.isSaving = true;
+    console.log(data);
   //startRemplace
   function run(schema){
     let result = '';
@@ -245,7 +261,6 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
   }
  //endRemplace
     if (!this.isEditing) {
-      data = this.parseLanguaje(data, this.language);
       this.&[name]&Service.create&[Name]&(data).subscribe(
         () => {
           this.showToastr.showSucces('Elemento creado correctamente');
@@ -253,65 +268,50 @@ export class DialogAddEdit&[Name]&Component implements OnInit, OnDestroy {
           this.dialogRef.close(true);
         },
         (error) => {
-          this.dialogRef.close();
           this.spinner.hide();
+          this.isSaving = false;
+          if (error.status == 404 || error.status == 403) {
+            this.dialogRef.close();
+          }
         },
       );
     } else {
-      data = this.parseLanguajeEdit(data, this.selected&[Name]&, this.language);
-      data.id = this.selected&[Name]&.id;
-      console.log(data);
-      this.&[name]&Service.edit&[Name]&(data).subscribe(
+      let dataOutput = { id: this.selected&[Name]&.id };
+      for (let key in data) {
+        if (!this.utilsService.isObjectEquals(this.selected&[Name]&[key], data[key])) {
+          dataOutput[key] = data[key];
+        }
+      }
+      this.&[name]&Service.edit&[Name]&(dataOutput).subscribe(
         () => {
           this.showToastr.showSucces('Elemento editado correctanmete');
           this.spinner.hide();
           this.dialogRef.close(true);
         },
         (error) => {
-          this.dialogRef.close();
           this.spinner.hide();
+          this.isSaving = false;
+          if (error.status == 404 || error.status == 403) {
+            this.dialogRef.close();
+          }
         },
       );
     }
   }
 
   //////////////////////////// UTILS FOR LANGUAGE HANDLE ///////////////////////////////////////
-  compareByValue(f1: any, f2: any) {
-    return f1 && f2 && f1.lang === f2.lang;
-  }
-
-  parseLanguaje(data, lang) {
+  updateLanguageData() {
     //startRemplace
-     function run(schema){
+    function run(schema){
       let result = ''; 
       for(let key in schema){
         if(schema[key].type == "JSON" && schema[key].isForTranslate){
-          result+=`data.${key} = { [lang]: data.${key} };`
+          result+=`this.languageData.${key}[this.language] = this.form.get('${key}').value;`
         }
       }
       return result;
     }
     //endRemplace
-    return data;
-  }
-
-  parseLanguajeEdit(data, olData, lang) {
-
-     //startRemplace
-     function run(schema){
-      let result = ''; 
-      for(let key in schema){
-        if(schema[key].type == "JSON" && schema[key].isForTranslate){
-          result+=` if(data.${key} != undefined) {
-                        olData.${key}[lang] = data.${key};
-                        data.${key} = { ...olData.${key} };
-                    }`
-        }
-      }
-      return result;
-    }
-    //endRemplace
-    return data;
   }
   ///////////////////////////////////////////////////////////////////////////////////////////
 }

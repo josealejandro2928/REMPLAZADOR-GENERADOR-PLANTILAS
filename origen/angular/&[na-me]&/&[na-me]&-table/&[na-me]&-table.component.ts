@@ -16,11 +16,12 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { TranslateService } from '@ngx-translate/core';
 //startRemplace
 function run(schema){
   let result = '';
   for(let key in schema){
-    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'){
       result+=`import { ${schema[key].targetTable}Service } from 'src/app/backend/services/${schema[key].targetTable.toLowerCase()}/${schema[key].targetTable.toLowerCase()}.service';\n`
     }
   }
@@ -84,10 +85,10 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
   function run(schema){
     let result = '';
     for(let key in schema){
-      if(schema[key].showFieldInTable && schema[key].type=='ENUM' && !schema[key].noCreate){
+      if(schema[key].showFieldInTable && schema[key].type=='ENUM' ){
         result+=`all${key.substring(0,1).toUpperCase()}${key.substring(1,key.length)}:any[] = ${JSON.stringify(schema[key].values)}\n;`
       }
-      if(schema[key].type=='REFERENCE' && !schema[key].noCreate){
+      if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'){
         result+=`all${schema[key].targetTable.substring(0,1).toUpperCase()}${schema[key].targetTable.substring(1,key.length)}:any[] = []\n;`
       }
     }
@@ -103,11 +104,12 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
     private breadcrumbService: BreadcrumbService,
     public dialog: MatDialog,
     public utilsService: UtilsService,
+    private translateService: TranslateService,
     //startRemplace
  function run(schema){
   let result = '';
   for(let key in schema){
-    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'){
       result+=`private ${schema[key].targetTable.toLowerCase()}Service:${schema[key].targetTable}Service,`
     }
   }
@@ -165,13 +167,11 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
     });
      //////////////////////////////////////////////
      this.fetchData();
+   ///////////////////////////////////////////
     ///////////////////////////////////////////
-    ///////////////////////////////////////////
-
-    this.loggedInUserService.$languageChanged.pipe(takeUntil(this._unsubscribeAll)).subscribe((data: any) => {
+    this.translateService.onLangChange.pipe(takeUntil(this._unsubscribeAll)).subscribe((data: any) => {
       this.language = data.lang;
     });
-
     ///////////////////////////////////////////////
     //////////////////////////////////////////////
   }
@@ -182,7 +182,7 @@ export class &[Name]&TableComponent implements OnInit, OnDestroy {
  function run(schema){
   let result = '';
   for(let key in schema){
-    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'&& !schema[key].noCreate && !schema[key].createReference){
+    if(schema[key].showFieldInTable && schema[key].type=='REFERENCE'){
       result+=`this.${schema[key].targetTable.toLowerCase()}Service.getAll${schema[key].targetTable}s().subscribe((data)=>{
         this.all${schema[key].targetTable} = data.data;
       },e=>{
