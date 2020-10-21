@@ -98,8 +98,8 @@ function destroyResult(path) {
   }
 }
 
-destroyResult("./result");
-let data = fs.readFileSync("struct.json", "utf-8");
+destroyResult(`${process.cwd()}/result`);
+let data = fs.readFileSync(`${process.cwd()}/struct.json`, "utf-8");
 
 data = data.split("}");
 for (let i = 0; i < data.length; i++) {
@@ -110,8 +110,8 @@ for (let i = 0; i < data.length; i++) {
     temp = temp + "}";
     let schema = require("./build-schema")(temp)["schema"];
     let names = require("./build-schema")(temp)["names"];
-    createFolder("./result", names, schema);
-    navigateFolders("./origen", names, schema);
+    createFolder(`${process.cwd()}/result`, names, schema);
+    navigateFolders(`${process.cwd()}/origen`, names, schema);
     renameMigrations(schema, names, i);
   }
 }

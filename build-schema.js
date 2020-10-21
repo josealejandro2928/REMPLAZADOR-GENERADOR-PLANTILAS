@@ -93,9 +93,9 @@ function getProperties(attribute, properties) {
         result.targetTable = metaDataTable.split("->")[0];
         result.oneToMany = metaDataTable.split("->")[1] ? false : true;
         result.manyToMany = metaDataTable.split("->")[1] ? true : false;
-        result.throughTable = result.manyToMany
-          ? metaDataTable.split("->")[1]
-          : null;
+        result.throughTable = result.manyToMany ?
+          metaDataTable.split("->")[1] :
+          null;
       } else if (attribute.endsWith("Id")) {
         result.type = "REFERENCE";
         result.targetTable = properties[0];
@@ -141,6 +141,8 @@ function getProperties(attribute, properties) {
       result.noCreate = true;
     } else if (prop == "long") {
       result.longTxt = true;
+    } else if (prop == "ck") {
+      result.useCkEditor = true;
     }
   }
   return result;
