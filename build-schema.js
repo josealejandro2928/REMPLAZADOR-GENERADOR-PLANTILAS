@@ -55,6 +55,7 @@ function getProperties(attribute, properties) {
     }
     */
   let result = {};
+  result.showFieldInTable = true;
   switch (properties[0]) {
     case "''":
       result.type = "STRING";
@@ -70,6 +71,10 @@ function getProperties(attribute, properties) {
       break;
     case "json":
       result.type = "JSON";
+      break;
+    case "trans":
+      result.type = "JSON";
+      result.isForTranslate = true;
       break;
     case "date":
       result.type = "DATE";
@@ -116,12 +121,13 @@ function getProperties(attribute, properties) {
       result.isEmail = true;
     } else if (prop == "**") {
       result.isPassword = true;
-    } else if (prop == "show") {
-      result.showFieldInTable = true;
+    } else if (prop == "hide") {
+      result.showFieldInTable = false;
     } else if (prop == "u") {
       result.unique = true;
-    } else if (prop.startsWith("trans") && result.type == "JSON") {
+    } else if (prop.startsWith("trans")) {
       result.isForTranslate = true;
+      result.type = "JSON";
     } else if (prop.startsWith("s=")) {
       result.targetAttribute = prop.split("=")[1];
     } else if (prop.includes(">=")) {
@@ -143,6 +149,7 @@ function getProperties(attribute, properties) {
       result.longTxt = true;
     } else if (prop == "ck") {
       result.useCkEditor = true;
+      result.longTxt = true;
     }
   }
   return result;
